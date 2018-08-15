@@ -4,21 +4,48 @@ provider:
   name: aws
   runtime: nodejs8.10
 
+region: us-east-1
+
+environment:
+  GET_USER_FLOW_ARN: ${self:resources.Outputs.getUserFlow.Value}
+
 functions:
-  getUser:
-    handler: handlers/user.get
+  getUserEndpoint:
+    handler: handler.getUser
     events:
       - http:
           path: user
           method: get
+  getUser:
+    handler: handlers/user.get
 
 plugins:
   - serverless-offline
+  - serverless-step-functions
 
 custom:
   serverless-offline:
     port: 3000
 
+stepFunctions:
+  stateMachines:
+    getUserFlow:
+        name: getUserFlow
+        definition:
+          StartAt: getUser
+          States: 
+            getUser: 
+              Type: Task
+              Resource: arn:aws:lambda:${opt:region}:${self:custom.accountId}:function:${self:service}-${opt:stage}-getUser
+              End: true
+
+resources:
+  Resources:
+    Outputs:
+      getUserFlow:
+        Description: The ARN of the getUserFlow machine
+        Value:
+          Ref: getUserFlow
 
 # you can add packaging information here
 #package:
