@@ -3,12 +3,12 @@ const AWS = require('aws-sdk');
 var stepfunctions = new AWS.StepFunctions();
 
 module.exports.getUser = (event, context, callback) => {
-    console.log('process.env', process.env.GET_USER_FLOW_ARN);
+    console.log('process.env', JSON.stringify({'test': process.env.GET_USER_FLOW_ARN}));
     
   try {
     var params = {
       stateMachineArn: process.env.GET_USER_FLOW_ARN,
-      input: {}
+      input: "{}"
     };
 
     stepfunctions.startExecution(params, function (err, data) {

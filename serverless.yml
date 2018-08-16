@@ -3,14 +3,15 @@ service: aws-step-func
 provider:
   name: aws
   runtime: nodejs8.10
+  region: us-east-1
 
-region: us-east-1
-
-environment:
-  GET_USER_FLOW_ARN: ${self:resources.Outputs.getUserFlow.Value}
+# environment:
+#   GET_USER_FLOW_ARN: ${self:resources.Outputs.GetUserFlowOutout.Value}
 
 functions:
   getUserEndpoint:
+    environment: 
+      GET_USER_FLOW_ARN: ${self:resources.Outputs.GetUserFlowOutout.Value}
     handler: handler.getUser
     events:
       - http:
@@ -21,6 +22,7 @@ functions:
 
 plugins:
   - serverless-offline
+  - serverless-pseudo-parameters
   - serverless-step-functions
 
 custom:
@@ -29,29 +31,21 @@ custom:
 
 stepFunctions:
   stateMachines:
-    getUserFlow:
-        name: getUserFlow
-        definition:
-          StartAt: getUser
-          States: 
-            getUser: 
-              Type: Task
-              Resource: arn:aws:lambda:${opt:region}:${self:custom.accountId}:function:${self:service}-${opt:stage}-getUser
-              End: true
+    GetUserFlowMachine:
+      name: getUserFlow
+      definition:
+        StartAt: getUser
+        States: 
+          getUser: 
+            Type: Task
+            Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-getUser
+            End: true
 
 resources:
-  Resources:
-    Outputs:
-      getUserFlow:
-        Description: The ARN of the getUserFlow machine
-        Value:
-          Ref: getUserFlow
-
-# you can add packaging information here
-#package:
-#  include:
-#    - include-me.js
-#    - include-me-dir/**
-#  exclude:
-#    - exclude-me.js
-#    - exclude-me-dir/**
+  Outputs:
+    GetUserFlowOutout:
+      Description: The ARN of the getUserFlow machine
+      Value:
+        Ref: GetUserFlow
+      Export:
+        Name: GetUserFlowMachine
