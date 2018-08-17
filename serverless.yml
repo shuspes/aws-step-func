@@ -19,23 +19,33 @@ functions:
           method: get
   getUser:
     handler: handlers/user.get
+  getId:
+    handler: handlers/user.getId
 
 plugins:
   - serverless-offline
   - serverless-pseudo-parameters
   - serverless-step-functions
+  - serverless-step-functions-offline
 
 custom:
   serverless-offline:
     port: 3000
+  stepFunctionsOffline:
+    getUser: getUser
+    getId: getId
 
 stepFunctions:
   stateMachines:
     GetUserFlowMachine:
       name: getUserFlow
       definition:
-        StartAt: getUser
+        StartAt: getId
         States: 
+          getId:
+            Type: Task
+            Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-getId
+            Next: getUser
           getUser: 
             Type: Task
             Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-getUser

@@ -13,6 +13,7 @@
     "aws-sdk": "^2.293.0",
     "serverless-offline": "^3.25.7",
     "serverless-pseudo-parameters": "^2.1.0",
-    "serverless-step-functions": "^1.6.1"
+    "serverless-step-functions": "^1.6.1",
+    "serverless-step-functions-offline": "^2.0.1"
   }
 }

@@ -22,11 +22,15 @@ const USERS = [
     }
 ];
 
+module.exports.getId = (event, context, callback) => {
+    callback(null, {id: 3});
+};
+
 module.exports.get = (event, context, callback) => {
-    const response = {
-      statusCode: 200,
-      body: JSON.stringify({user: USERS[0]}),
-    };
+    const {id} = event;
+    const user = USERS[id];
+    
+    console.log("user: ", user);
   
-    callback(null, response);
-  };
+    callback(null, user);
+};
